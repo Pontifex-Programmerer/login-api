@@ -24,11 +24,28 @@ app.use(user_api);
 app.listen(PORT, ()=>{
     console.log(`Revving engine...`);
     console.log(`Server started at port ${PORT}\n------------------------------------`);
-    //mongoConnect(DBURI);   
-    //enableRedis(); 
+    try {
+        enableMongoAndRedis(DBURI); 
+    } catch(error) {
+        console.log('catch error!')
+        console.error(error.message);
+        console.info('Exiting! Infrastructure not complete!');
+        process.exit(1);
+    }
     
     startScheduler();
 });
+
+async function enableMongoAndRedis(DBURI, REDISURI){
+    try {
+        await mongoConnect(DBURI);   
+        await enableRedis(); 
+    } catch(error) {
+        console.error(error.message);
+        console.error('Exiting! Infrastructure not installed, or misconfigured!');
+        process.exit(1);
+    }
+}
 
 function setupDocumentationViews(){
     const path = require('path')

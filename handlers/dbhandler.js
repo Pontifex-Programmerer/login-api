@@ -1,12 +1,15 @@
 const mongoose = require('mongoose');
 const DBNAME="dev-test";
 
-const mongoConnect = URI =>{
-    let state = 'unresolved'
-    console.info(`Attempting to connect to mongo database @ URI: \n${URI}`)
-    mongoose.connect(URI, {
-        DBNAME
-    })
+const mongoConnect = URI => {
+    console.info('DBHandler.mongoConnect() - Attempting to connect to mongo')
+    if(URI && typeof URI !== 'undefined') {
+
+        let state = 'unresolved'
+        console.info(`Attempting to connect to mongo database @ URI: \n${URI}`)
+        mongoose.connect(URI, {
+            DBNAME
+        })
         .then(result => {
             state = 'established!'
         })
@@ -17,6 +20,9 @@ const mongoConnect = URI =>{
         .finally(()=>{
             console.info(`Connection to database ${state}`)
         })
+    } else {
+        console.error('DBHandler.mongoConnect() - No URI provided! Connectionattempt aborted!')
+    }
 }
 
 async function cleanUp(){
