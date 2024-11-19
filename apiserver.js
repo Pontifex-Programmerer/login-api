@@ -27,7 +27,6 @@ app.listen(PORT, ()=>{
     try {
         enableMongoAndRedis(DBURI); 
     } catch(error) {
-        console.log('catch error!')
         console.error(error.message);
         console.info('Exiting! Infrastructure not complete!');
         process.exit(1);

@@ -76,7 +76,8 @@ const logoutuser = async (req, res)=> {
     }
     res.status(feedback.statuscode).json(feedback);
 }
-const loginuser = async (req, res)=>{
+
+const loginuser = async (req, res)=> {
     const {username, password} = req.body;
     let feedback=accessDenied();
     try {

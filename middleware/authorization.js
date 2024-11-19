@@ -98,7 +98,7 @@ const invalidateTokens = async (req, res, next) => {
             }
         } else {
             feedback = createFeedback(404, ['invalid access token']);
-            sendresponse(res,feedback);
+            sendresponse(res,feedback);                   
         }
 
         if(typeof accessToken !== 'undefined' && typeof accessToken === 'string'){
