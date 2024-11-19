@@ -4,6 +4,7 @@
   "description": "simple demonstration of a backend api that requires authentication and authorization",
   "main": "index.js",
   "scripts": {
+    "dev": "npx nodemon apiserver.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
