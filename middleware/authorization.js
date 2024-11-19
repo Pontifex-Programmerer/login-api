@@ -9,7 +9,7 @@ const {
     createFeedback,
     accessDenied,
     resourceNotFound
-}=require('../handlers/feedbackHandler');
+}=require('../handlers/httpFeedbackHandler');
 
 const {
     setTokenBan,
