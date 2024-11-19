@@ -12,7 +12,7 @@ const {
     createFeedback,
     resourceNotFound,
     internalServerError
-} = require('../handlers/feedbackHandler');
+} = require('../handlers/httpFeedbackHandler');
 const { response } = require('express');
 
 const createuser = async (req,res)=> {
