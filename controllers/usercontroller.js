@@ -80,6 +80,7 @@ const loginuser = async (req, res)=>{
     const {username, password} = req.body;
     let feedback=accessDenied();
     try {
+        const user = await User.login(username,password);
         if(user){
             const {_id} = user;
             //expiration: one hour
@@ -95,8 +96,6 @@ const loginuser = async (req, res)=>{
     } catch(err){
         console.error("usercontroller: loginuser:",err.message);
     }
-    const user = await User.login(username,password);
-   
     res.status(feedback.statuscode).json(feedback);
 }
 
