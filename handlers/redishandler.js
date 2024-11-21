@@ -4,29 +4,30 @@
 const redis = require('redis')
 const MAXCONNECTIONATTEMPTS = 3;
 const DELAYBETWEENCONNECTIONATTEMPTS=1000; //millis
-const client = redis.createClient({
-    socket:{
-        url: 'redis://127.0.0.1:6379',
-        reconnectStrategy: retries => {
-            console.log('retries', retries)
-            if(retries>=3){
-                console.error('RedisHandler: Max connectionattempts reached! Aborting');
-                return false;
+let client = null;
+async function enableRedis(REDISURI){
+    client = redis.createClient({
+        socket:{
+            url: `redis://${REDISURI}`,
+            reconnectStrategy: retries => {
+                console.log('retries', retries)
+                if(retries>=3){
+                    console.error('RedisHandler: Max connectionattempts reached! Aborting');
+                    return false;
+                }
+                return DELAYBETWEENCONNECTIONATTEMPTS;
             }
-            return DELAYBETWEENCONNECTIONATTEMPTS;
-        }
-    },
-    maxRetriesPerRequest: MAXCONNECTIONATTEMPTS
-});
+        },
+        maxRetriesPerRequest: MAXCONNECTIONATTEMPTS
+    });
+    
+    client.on('connect', ()=>{
+        console.info('Connection to redis successfully established')
+    })
+    client.on('error', err=> {
+        console.error('Error! Could not connect to redis!\n-------------------------------------------\n',err,'\n');
+    })
 
-client.on('connect', ()=>{
-    console.info('Connection to redis successfully established')
-})
-client.on('error', err=> {
-    console.error('Error! Could not connect to redis!\n-------------------------------------------\n',err,'\n');
-})
-
-async function enableRedis(connection){
     try {
         await client.connect();
     } catch (err){
@@ -35,10 +36,12 @@ async function enableRedis(connection){
 }
 
 async function setTokenBan(tokenID, token, expireIn){
-    try {
-        const result = await client.setEx(tokenID, expireIn, token);
-    } catch(err){
-        console.error(err);
+    if(client){
+        try {
+            const result = await client.setEx(tokenID, expireIn, token);
+        } catch(err){
+            console.error(err);
+        }
     }
 }
 
@@ -59,7 +62,6 @@ async function isTokenBanned(tokenID){
 
 async function cleanUp(){
     if(client.isOpen){
-
         try {
             await client.disconnect();
             console.info('redisclient disconnected!')
