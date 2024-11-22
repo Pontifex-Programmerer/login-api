@@ -87,38 +87,28 @@ const invalidateTokens = async (req, res, next) => {
     try {
         const refreshToken = req.headers.authorization?.split(' ')[1];
         const {accessToken} = req.body;
-        if(typeof refreshToken !== 'undefined' && typeof refreshToken === 'string'){
-            const {_id,cryptotoken} = await jwt.verify(refreshToken, process.env.JWTSECRET);
-            req.body.user= await User.findOne({_id});
-            //Remove refreshtoken from db to prevent accesstokens from refreshing
-            const result = await RefreshToken.findOneAndDelete({cryptotoken});
-            if(!result){
-                //needs implementation - may be tampering!
-                console.warn('Tried deleting a refreshtoken, but token vas not in the database!')
-            }
-        } else {
-            feedback = createFeedback(404, ['invalid access token']);
-            sendresponse(res,feedback);                   
-        }
 
-        if(typeof accessToken !== 'undefined' && typeof accessToken === 'string'){
-            const {cryptotoken, exp} = await jwt.verify(accessToken, process.env.JWTSECRET);
-            console.log(cryptotoken);
-            const bantime = exp - Math.ceil((Date.now()/1000));
-            //Ban accesstoken in redis for the remaining duration of the token
-            setTokenBan(cryptotoken, accessToken, bantime);
-        } else {
-            if(feedback.payload){
-                feedback = createFeedback(404, feedback.payload.push('invalid refresh token'));
-            } else {
-                feedback = createFeedback(404, 'invalid refresh token');
-            }
-            sendresponse(res, feedback);
-        } 
+  
+        var {_id,decryptedRefreshToken} = await jwt.verify(refreshToken, process.env.JWTSECRET);
+        req.body.user= await User.findOne({_id});
+        //Remove refreshtoken from db to prevent accesstokens from refreshing
+        const result = await RefreshToken.findOneAndDelete({decryptedRefreshToken});
+        if(!result){
+            //needs implementation - may be tampering!
+            console.warn('Tried deleting a refreshtoken, but token vas not in the database!')
+        }
+        
+        var {decryptedAccessToken, expireTime} = await jwt.verify(accessToken, process.env.JWTSECRET);
+        const bantime = expireTime - Math.ceil((Date.now()/1000));
+        //Ban accesstoken in redis for the remaining duration of the token
+        setTokenBan(decryptedAccessToken, accessToken, bantime);
         next();
     } catch(err) {
-        console.error('\nAn error occurred while removing a token\n'+
-                      '-----------------------------------------------'+
+        if(!decryptedAccessToken){
+            // Intentionally vague feedback as not to give clues to hypotetical attackers
+            feedback= createFeedback(401, "Invalid token!");
+        }
+        console.error('\nAn error occurred while removing a token:\n'+
                       '\n'+err);
         sendresponse(res,feedback);
     }
