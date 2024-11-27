@@ -48,10 +48,10 @@ async function enableMongoAndRedis(DBURI, REDISURI){
 
 function setupDocumentationViews(){
     const path = require('path')
-    const router = require('./routes/documentation_routes');
 
     app.set('view engine', 'ejs');
     app.set('views', path.join(__dirname, 'views'));
+    app.use(express.static('public'))
     app.use(documentation_routes);
 
 }

@@ -1,6 +1,0 @@
-{
-    "endpoint":"/create-user",
-    "verb":"POST",
-    "jsonStructure":"{'username':'[username]','password':'[password'}",
-    "description":"To create a user, call this endpoint and send json as structured above."
-}

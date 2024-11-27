@@ -1,0 +1,29 @@
+* {
+    --secondary-bg: #000000;
+    --secondary-fg: #ffffff;
+
+    --text-maxwidth: 75ch;
+}
+
+body {
+    font-size: 2rem;
+}
+
+.intro {
+    width: var(--text-maxwidth);
+    margin: 0 auto;
+}
+
+.doc-section {
+    display: flex;
+    flex-direction: column;
+    margin: 0 auto;
+    width: var(--text-maxwidth);
+}
+
+.endpoint-doc {
+    color: var(--secondary-fg);
+    background-color: var(--secondary-bg);
+    margin: 1ch 0;
+    padding: 0.5ch 1ch;
+}
