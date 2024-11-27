@@ -19,8 +19,8 @@ const {
 
 //Authentication
 router.post('/create-user', createuser);
-router.post('/loginuser', loginuser);
-router.post('/refreshuser', authenticateRefreshToken, refreshUser);
+router.post('/login-user', loginuser);
+router.post('/refresh-user', authenticateRefreshToken, refreshUser);
 router.post('/logout', invalidateTokens, logoutuser)
 
 
