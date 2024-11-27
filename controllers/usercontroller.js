@@ -12,7 +12,7 @@ const {
     createFeedback,
     resourceNotFound,
     internalServerError
-} = require('../handlers/feedbackHandler');
+} = require('../handlers/httpFeedbackHandler');
 const { response } = require('express');
 
 const createuser = async (req,res)=> {
@@ -76,22 +76,26 @@ const logoutuser = async (req, res)=> {
     }
     res.status(feedback.statuscode).json(feedback);
 }
-const loginuser = async (req, res)=>{
+
+const loginuser = async (req, res)=> {
     const {username, password} = req.body;
     let feedback=accessDenied();
-    const user = await User.login(username,password);
-   
-    if(user){
-        const {_id} = user;
-        //expiration: one hour
-        const accessToken = generateAccessToken(_id)
-        const refreshToken = await generateRefreshToken(_id);
-
-        if(refreshToken){
-            feedback=createFeedback(200, `${username} was authenticated`, true, {accessToken, refreshToken});
-        } else {
-            feedback=internalServerError();
+    try {
+        const user = await User.login(username,password);
+        if(user){
+            const {_id} = user;
+            //expiration: one hour
+            const accessToken = generateAccessToken(_id)
+            const refreshToken = await generateRefreshToken(_id);
+    
+            if(refreshToken){
+                feedback=createFeedback(200, `${username} was authenticated`, true, {accessToken, refreshToken});
+            } else {
+                feedback=internalServerError();
+            }
         }
+    } catch(err){
+        console.error("usercontroller: loginuser:",err.message);
     }
     res.status(feedback.statuscode).json(feedback);
 }

@@ -42,7 +42,7 @@ async function cleanUpExpiredRefreshTokens(batchsize=500){
     } finally {
         const readableDate = dateNow.toLocaleString();
         console.info(
-        `------------------------------------------------------` +
+        `------------------------------------------------------\n` +
         `Expired refreshtokens was removed from the database:\n`+
         `${totalDeleted} tokens removed - date: ${readableDate}`);
     }
