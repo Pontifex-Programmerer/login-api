@@ -16,31 +16,15 @@
 
         <% files.forEach(file =>  { %>
             <section class="endpoint-doc">
-                <h1 class="endpoint"><%=file.endpoint%></h1>
-                <h3 class="httpverb"><%=file.verb%></h3>
-                <h3 class="json"><%=file.jsonStructure%></h3>
-                <p class="text">
+                <h1 class="endpoint roboto-condensed-500"><%=file.verb%> : <%=file.endpoint%></h1>
+                <h3 class="json roboto-regular"><%=file.jsonStructure%></h3>
+                <hr>
+                <p class="text roboto-light">
                     <%=file.description%>
                 </p>
             </section>
         <% }); %>
     </section>
 <% } %>
-
-<section class="documentation-links">
-    <ul>
-        <li><a href="#">200 - OK</a></li>
-        <li><a href="#">400 - </a></li>
-    </ul>
-</section>
-
-<section class="documentation-links">
-    <ul>
-        <li><a href="#">/create-user</a></li>
-        <li><a href="#">/login-user</a></li>
-        <li><a href="#">/refreshuser</a></li>
-        <li><a href="#">/logout</a></li>
-    </ul>
-</section>
 
 <%-include("./partials/footer") %>

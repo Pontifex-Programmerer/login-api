@@ -11,6 +11,7 @@ const mongoConnect = URI => {
             DBNAME
         })
         .then(result => {
+            // TODO: handle result
             state = 'established!'
         })
         .catch(err=>{

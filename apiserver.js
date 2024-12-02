@@ -1,5 +1,4 @@
 require('dotenv').config();
-const appEventHandler = require('./handlers/appEventHandler');
 const express = require('express');
 const app = express();
 const documentation_routes=require('./routes/documentation_routes');
@@ -10,10 +9,9 @@ const {enableRedis}=require('./handlers/redishandler')
 
 const {
     mongoConnect
-} = require('./handlers/dbhandler');
+} = require('./handlers/dbHandler');
 
 const PORT = process.env.PORT || 3000;
-const DBURI = process.env.DBURI || '';
 
 //setup bodyparsing
 app.use(express.urlencoded({extended:true}));
@@ -25,7 +23,9 @@ app.listen(PORT, ()=>{
     console.log(`Revving engine...`);
     console.log(`Server started at port ${PORT}\n------------------------------------`);
     try {
-        enableMongoAndRedis(DBURI); 
+        const DBURI = process.env.DBURI || '';
+        const REDISURI = process.env.REDISURI || null;
+        enableMongoAndRedis(DBURI, REDISURI); 
     } catch(error) {
         console.error(error.message);
         console.info('Exiting! Infrastructure not complete!');
@@ -38,7 +38,7 @@ app.listen(PORT, ()=>{
 async function enableMongoAndRedis(DBURI, REDISURI){
     try {
         await mongoConnect(DBURI);   
-        await enableRedis(); 
+        await enableRedis(REDISURI); 
     } catch(error) {
         console.error(error.message);
         console.error('Exiting! Infrastructure not installed, or misconfigured!');
