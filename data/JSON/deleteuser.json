@@ -1,0 +1,6 @@
+{
+    "endpoint":"/delete-user",
+    "verb":"DELETE",
+    "jsonStructure":"-",
+    "description":"To delete a user the request must be authenticated and authorized; only admins are allowed to delete users. An access token in the form of a bearer header must be provided. Users are not allowed to delete themselves."
+}
