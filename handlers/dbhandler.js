@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const DBNAME="dev-test";
+const DBNAME= process.env.USERDB || "dev-login-api";
 
 const mongoConnect = URI => {
     console.info('DBHandler.mongoConnect() - Attempting to connect to mongo')
@@ -19,7 +19,7 @@ const mongoConnect = URI => {
             state= 'unresolved!'
         })
         .finally(()=>{
-            console.info(`Connection to database ${state}`)
+            console.info(`Connection to database ${state}`);
         })
     } else {
         console.error('DBHandler.mongoConnect() - No URI provided! Connectionattempt aborted!')
