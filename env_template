@@ -1,0 +1,5 @@
+DBURI="connection to a mongodb database"
+PORT=your prefferred port
+REDISURI="connection to a redis database"
+USERDB="dev-loginapi-skolepc"
+JWTSECRET="somesecretstring-abolutely-not-this-one!"

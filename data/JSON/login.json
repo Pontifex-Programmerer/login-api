@@ -1,0 +1,6 @@
+{
+    "endpoint":"/login",
+    "verb":"POST",
+    "jsonStructure":"{ 'username' : '[ username ]', 'password' : '[ password ]'}",
+    "description":"To retrieve an access token and a refreshtoken, call this endpoint and send json as structured above."
+}

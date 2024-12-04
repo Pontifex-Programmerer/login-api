@@ -1,14 +1,30 @@
 <%-include("./partials/header") %>
 
-<h1>Bleiker VGS login-api endpoint documentation</h1>
-
-<section class="api-endpoints">
-    <ul>
-        <li><a href="#">/create-user</a></li>
-        <li><a href="#">/login-user</a></li>
-        <li><a href="#">/refreshuser</a></li>
-        <li><a href="#">/logout</a></li>
-    </ul>
+<section class="intro">
+    <h1>Bleiker VGS login-api endpoint documentation</h1>
+    <p>
+        This is the documentation for auth.ikt-fag.no. The API is based JWT tokens with 
+        mechanics in place for invalidating JWT tokens, thus enabling logout and banning
+        tokens if needed. Each route consumed by the api is documented below, as are all
+        the responses you can expect to get.
+    </p>
+    <hr>
 </section>
+
+<% if(Array.isArray(files) && files.length > 0) { %>
+    <section class="doc-section">
+
+        <% files.forEach(file =>  { %>
+            <section class="endpoint-doc">
+                <h1 class="endpoint roboto-condensed-500"><%=file.verb%> : <%=file.endpoint%></h1>
+                <h3 class="json roboto-regular"><%=file.jsonStructure%></h3>
+                <hr>
+                <p class="text roboto-light">
+                    <%=file.description%>
+                </p>
+            </section>
+        <% }); %>
+    </section>
+<% } %>
 
 <%-include("./partials/footer") %>

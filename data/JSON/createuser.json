@@ -1,0 +1,6 @@
+{
+    "endpoint":"/refresh-user",
+    "verb":"POST",
+    "jsonStructure":"-",
+    "description":"If an access-token expires, a new can be obtained by sending a REFRESHTOKEN in the auth header as bearer."
+}
