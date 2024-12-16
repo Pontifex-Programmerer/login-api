@@ -2,7 +2,7 @@
 'use strict'
 const {
     cleanUp: mongoCleanUp
-} = require('./dbHandler');
+} = require('./dbHandler.js');
 
 const {
     cleanUp: redisCleanUp
@@ -13,7 +13,7 @@ process.on('SIGINT', appCleanUp);
 process.on('SIGUSR1', appCleanUp);
 process.on('SIGUSR2', appCleanUp);
 
-async function appCleanUp(){
+async function appCleanUp(){ 
     console.info('\nAttempting graceful shutdown!\n'+
             '---------------------------------------');
     try {

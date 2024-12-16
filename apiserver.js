@@ -7,9 +7,9 @@ const {startScheduler}=require('./services/scheduler');
 
 const {enableRedis} = require('./handlers/redishandler')
 
-import {
+const {
     mongoConnect
-} from('./handlers/dbHandler');
+} = require('./handlers/dbHandler');
 
 const PORT = process.env.PORT || 3000;
 
