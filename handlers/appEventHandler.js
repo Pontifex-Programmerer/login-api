@@ -1,7 +1,9 @@
 // May 2024 Geir Hilmersen
+'use strict'
 const {
     cleanUp: mongoCleanUp
-} = require('./dbhandler');
+} = require('./dbHandler');
+
 const {
     cleanUp: redisCleanUp
 } = require('./redishandler');
