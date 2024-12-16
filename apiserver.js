@@ -5,11 +5,11 @@ const documentation_routes=require('./routes/documentation_routes');
 const user_api=require('./routes/api_user_routes');
 const {startScheduler}=require('./services/scheduler');
 
-const {enableRedis}=require('./handlers/redishandler')
+const {enableRedis} = require('./handlers/redishandler')
 
-const {
+import {
     mongoConnect
-} = require('./handlers/dbHandler');
+} from('./handlers/dbHandler');
 
 const PORT = process.env.PORT || 3000;
 
