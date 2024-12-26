@@ -56,7 +56,6 @@ const deleteuser = async (req, res)=>{
     let feedback = createFeedback(404, `User ${email} could not be deleted`);
     if(typeof(email)!=='undefined'){
         try {
-
             const result = await User.findOneAndDelete({email});
             if(result){
                 feedback=createFeedback(200, `${email} was deleted!`, true, result);
@@ -68,6 +67,9 @@ const deleteuser = async (req, res)=>{
     res.status(feedback.statuscode).json(feedback);
 }
 
+// Tokens are deleted in the authorization middleware, and a user is passed on
+// based on the tokens that are deleted. If no user is provided, the tokens was 
+// non-existent.
 const logoutuser = async (req, res)=> {
     let feedback = createFeedback(404, 'user not found!');
     const {user} = req.body;

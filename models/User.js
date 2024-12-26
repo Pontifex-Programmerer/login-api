@@ -39,7 +39,7 @@ userschema.statics.login=login;
 userschema.methods.changeUserRole=changeUserRole;
 
 /**
- * @param {*} username of the user to log in
+ * @param {*} email of the user to log in
  * @param {*} password of the user to log in
  * @returns the user if credentials is successfully validated or null in any other case.
  */
