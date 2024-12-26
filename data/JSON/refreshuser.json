@@ -1,6 +1,6 @@
 {
     "endpoint":"/refresh-user",
     "verb":"POST",
-    "jsonStructure":"{ 'refreshtoken' : '[ refreshtoken ]' }",
-    "description":"To log out a user from the system, include the ACCESSTOKEN in the auth header as BEARER and embed the refreshtoken in the request body as JSON."
+    "jsonStructure":"{ 'refreshtoken'}",
+    "description":"to get a new ACCESSTOKEN, provide the refresh-token"
 }

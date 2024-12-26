@@ -1,5 +1,6 @@
-//Created by: Geir Hilmersen
-//5 May 2024 Geir Hilmersen
+// Created by: Geir Hilmersen
+// 5 May 2024 Geir Hilmersen
+// 26 December 2024 Geir Hilmersen
 
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
@@ -13,20 +14,20 @@ const {
     resourceNotFound,
     internalServerError
 } = require('../handlers/httpFeedbackHandler');
-const { response } = require('express');
 
 const createuser = async (req,res)=> {
-    const {username,password} = req.body;
-    let feedback = createFeedback(404, `${username} could not be created.`);
-    if(typeof(username) !== 'undefined' && typeof(password) !== 'undefined'){
+    const {email, givenname, surname, password} = req.body;
+    let feedback = createFeedback(404, `${email} could not be created.`);
+    console.log(typeof(email),typeof(password),typeof(givenname));
+    if(typeof(email) === 'string' && typeof(password) === 'string' && typeof(surname) && typeof(givenname) === 'string'){
         try {
-            const result = await User.create({username,password});
+            const result = await User.create({email, givenname, surname, password});
             if(result) {
                 const {_id} = result;
-                feedback = createFeedback(200, `${username} was created!`,true, {_id});
+                feedback = createFeedback(200, `${email} was created!`,true, {_id});
             }
         } catch(error) {
-            feedback = createFeedback(409, `${username} could not be created!`, false, error)
+            feedback = createFeedback(409, `${email} could not be created!`, false, error)
         }
     }
     res.status(feedback.statuscode).json(feedback);

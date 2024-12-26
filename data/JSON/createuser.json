@@ -1,6 +1,6 @@
 {
     "endpoint":"/create-user",
     "verb":"POST",
-    "jsonStructure":"{ username, password }",
+    "jsonStructure":"{ email, givenname, surname, password }",
     "description":"The body must contain JSON as described above. The response will contain a JSON object with a message confirming the creation of a user, and the _id of the newly created user."
 }

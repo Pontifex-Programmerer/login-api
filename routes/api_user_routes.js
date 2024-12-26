@@ -1,3 +1,6 @@
+// Created by: Geir Hilmersen
+// 26 December 2024 Geir Hilmersen
+
 const router = require('express').Router();
 const {
     authenticate,

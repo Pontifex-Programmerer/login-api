@@ -1,13 +1,23 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+const validator = require('validator');
 const PASSWORDLENGTH=8;
 
 const userschema=mongoose.Schema({
-    username: {
+    givenname: {
+        type: String,
+        required: true
+    },
+    surname: {
         type: String,
         required: true,
-        lowercase: true,
-        unique: true
+
+    },
+    email: {
+        type: String,
+        required: [true, "an email is required to register!"],
+        validate: validator.isEmail,
+        message: props => `${props.value} is not a valid email!`
     },
     role: {
         type: String,
