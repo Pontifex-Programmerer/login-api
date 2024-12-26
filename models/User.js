@@ -2,18 +2,6 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const PASSWORDLENGTH=8;
 
-const todoschema=mongoose.Schema({
-    title: {
-        type: String,
-        required: true,
-        minlength: [5, 'your title needs to be at least 5 characters']
-    },
-    description: {
-        type: String,
-        required: true,
-        minlength: [10, 'Your task needs to be more descriptive! 10 characters please!']
-    }
-})
 const userschema=mongoose.Schema({
     username: {
         type: String,
@@ -31,9 +19,9 @@ const userschema=mongoose.Schema({
         type: String,
         required: true,
         minlength: [PASSWORDLENGTH, `Passwords must have at least this many letters: ${PASSWORDLENGTH}`]
-    },
-    todos:[todoschema]
-})
+    }
+},
+{timestamps: true})
 
 userschema.pre('save', hashPassword);
 

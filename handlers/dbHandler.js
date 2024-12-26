@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
-const DBNAME= process.env.USERDB || "dev-login-api";
+const DBNAME= process.env.DBNAME || "dev-login-api";
 
-const mongoConnect = URI => {
+const mongoConnect =async URI => {
     console.info('DBHandler.mongoConnect() - Attempting to connect to mongo')
     if(URI && typeof URI !== 'undefined') {
 
