@@ -43,9 +43,9 @@ userschema.methods.changeUserRole=changeUserRole;
  * @param {*} password of the user to log in
  * @returns the user if credentials is successfully validated or null in any other case.
  */
-async function login(username, password){
+async function login(email, password){
     let loginresult = null;
-    const user = await this.findOne({username});
+    const user = await this.findOne({email});
     if(user){
         const auth = await bcrypt.compare(password, user.password);
         if(auth) loginresult=user;

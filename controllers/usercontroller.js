@@ -34,14 +34,14 @@ const createuser = async (req,res)=> {
 }
 
 const upgradeuser = async (req, res)=>{
-    const {username, isDowngrade} = req.body;
+    const {email, isDowngrade} = req.body;
     let feedback = createFeedback(404, 'Faulty inputdata!');
     try{
-        let targetUser = await User.findOne({username});
+        let targetUser = await User.findOne({email});
         const updateduser = await targetUser.changeUserRole(isDowngrade);
 
         if(updateduser){
-            feedback=createFeedback(200, 'Success', true, {username:updateduser.username,role:updateduser.role});
+            feedback=createFeedback(200, 'Success', true, {email:updateduser.email,role:updateduser.role});
         } else {
             feedback=internalServerError();
         }
@@ -52,14 +52,14 @@ const upgradeuser = async (req, res)=>{
 }
 
 const deleteuser = async (req, res)=>{
-    const {username} = req.body;
-    let feedback = createFeedback(404, `User ${username} could not be deleted`);
-    if(typeof(username)!=='undefined'){
+    const {email} = req.body;
+    let feedback = createFeedback(404, `User ${email} could not be deleted`);
+    if(typeof(email)!=='undefined'){
         try {
 
-            const result = await User.findOneAndDelete({username});
+            const result = await User.findOneAndDelete({email});
             if(result){
-                feedback=createFeedback(200, `${username} was deleted!`, true, result);
+                feedback=createFeedback(200, `${email} was deleted!`, true, result);
             }
         }catch(error){
             console.log('error!');
@@ -72,16 +72,16 @@ const logoutuser = async (req, res)=> {
     let feedback = createFeedback(404, 'user not found!');
     const {user} = req.body;
     if(user){
-        feedback = createFeedback(200, `${user.username} has been logged out!`, true);
+        feedback = createFeedback(200, `${user.email} has been logged out!`, true);
     }
     res.status(feedback.statuscode).json(feedback);
 }
 
 const loginuser = async (req, res)=> {
-    const {username, password} = req.body;
+    const {email, password} = req.body;
     let feedback=accessDenied();
     try {
-        const user = await User.login(username,password);
+        const user = await User.login(email,password);
         if(user){
             const {_id} = user;
             //expiration: one hour
@@ -89,7 +89,7 @@ const loginuser = async (req, res)=> {
             const refreshToken = await generateRefreshToken(_id);
     
             if(refreshToken){
-                feedback=createFeedback(200, `${username} was authenticated`, true, {accessToken, refreshToken});
+                feedback=createFeedback(200, `${email} was authenticated`, true, {accessToken, refreshToken});
             } else {
                 feedback=internalServerError();
             }
