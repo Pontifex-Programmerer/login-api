@@ -16,8 +16,11 @@ const userschema=mongoose.Schema({
     email: {
         type: String,
         required: [true, "an email is required to register!"],
-        validate: validator.isEmail,
-        message: props => `${props.value} is not a valid email!`
+        unique: true,
+        validate: {
+            validator: validator.isEmail,
+            message: props => `${props.value} is not a valid email!`,
+        }
     },
     role: {
         type: String,
