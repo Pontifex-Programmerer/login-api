@@ -18,7 +18,6 @@ const {
 const createuser = async (req,res)=> {
     const {email, givenname, surname, password} = req.body;
     let feedback = createFeedback(404, `${email} could not be created.`);
-    console.log(typeof(email),typeof(password),typeof(givenname));
     if(typeof(email) === 'string' && typeof(password) === 'string' && typeof(surname) && typeof(givenname) === 'string'){
         try {
             const result = await User.create({email, givenname, surname, password});
@@ -27,14 +26,17 @@ const createuser = async (req,res)=> {
                 feedback = createFeedback(200, `${email} was created!`,true, {_id});
             }
         } catch(error) {
-            console.log('error!')
-            switch(error.errorResponse.code) {
-                case 11000:
-                    feedback = createFeedback(409, `${email} is already registered!`, false, error)
-                    break;
-                default:
-                    feedback = createFeedback(409, `${email} could not be created!`, false, error)
-                    break;
+            const code = error?.response?.code;
+            if(code && typeof(code) === 'number'){
+                switch(code) {
+                    case 11000:
+                        break;
+                    default:
+                        feedback = createFeedback(409, `${email} could not be created! MongoDB code ${code}`, false, error)
+                        break;
+                }
+            } else {
+                feedback = createFeedback(404, error.message, false, error);
             }
         }
     }
