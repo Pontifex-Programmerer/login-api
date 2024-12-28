@@ -27,7 +27,15 @@ const createuser = async (req,res)=> {
                 feedback = createFeedback(200, `${email} was created!`,true, {_id});
             }
         } catch(error) {
-            feedback = createFeedback(409, `${email} could not be created!`, false, error)
+            console.log('error!')
+            switch(error.errorResponse.code) {
+                case 11000:
+                    feedback = createFeedback(409, `${email} is already registered!`, false, error)
+                    break;
+                default:
+                    feedback = createFeedback(409, `${email} could not be created!`, false, error)
+                    break;
+            }
         }
     }
     res.status(feedback.statuscode).json(feedback);
