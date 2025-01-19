@@ -5,7 +5,8 @@ const router = require('express').Router();
 const {
     authenticate,
     authenticateRefreshToken,
-    invalidateTokens,
+    invalidateRefreshToken,
+    invalidateAccessToken,
     authorizeAdmin
 } = require('../middleware/authorization');
 
@@ -21,8 +22,8 @@ const {
 //Authentication
 router.post('/create-user', createuser);
 router.post('/login-user', loginuser);
-router.post('/refresh-user', authenticateRefreshToken, refreshUser);
-router.post('/logout', invalidateTokens, logoutuser)
+router.post('/refresh-user', invalidateAccessToken, authenticateRefreshToken, refreshUser);
+router.post('/logout', invalidateAccessToken, invalidateRefreshToken, logoutuser)
 
 
 //Protected routes

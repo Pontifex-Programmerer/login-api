@@ -82,35 +82,44 @@ const authorizeAdmin = (req,res,next)=>{
 //Any token found is removed. A valid accesstoken without a refreshtoken
 //will be banned. A refreshtoken will be removed from the DB even if no
 //valid accesstoken is found in case of tampering. Zero thrust security!
-const invalidateTokens = async (req, res, next) => {
+const invalidateRefreshToken = async (req, res, next) => {
     let feedback = resourceNotFound();
     try {
         const refreshToken = req.headers.authorization?.split(' ')[1];
-        const {accessToken} = req.body;
 
-  
-        var {_id,decryptedRefreshToken} = await jwt.verify(refreshToken, process.env.JWTSECRET);
+        // Remove the refresh token
+        let {_id,cryptotoken} = await jwt.verify(refreshToken, process.env.JWTSECRET);
+        
         req.body.user= await User.findOne({_id});
         //Remove refreshtoken from db to prevent accesstokens from refreshing
-        const result = await RefreshToken.findOneAndDelete({decryptedRefreshToken});
+        const result = await RefreshToken.findOneAndDelete({cryptotoken});
         if(!result){
             //needs implementation - may be tampering!
             console.warn('Tried deleting a refreshtoken, but token vas not in the database!')
         }
-        
-        var {decryptedAccessToken, expireTime} = await jwt.verify(accessToken, process.env.JWTSECRET);
-        const bantime = expireTime - Math.ceil((Date.now()/1000));
-        //Ban accesstoken in redis for the remaining duration of the token
-        setTokenBan(decryptedAccessToken, accessToken, bantime);
         next();
     } catch(err) {
-        if(!decryptedAccessToken){
-            // Intentionally vague feedback as not to give clues to hypotetical attackers
-            feedback= createFeedback(401, "Invalid token!");
-        }
         console.error('\nAn error occurred while removing a token:\n'+
                       '\n'+err);
         sendresponse(res,feedback);
+    }
+}
+
+const invalidateAccessToken = async (req, res, next) => {
+    const {accessToken} = req.body;
+    let isNext=true;
+    try {
+        let {cryptotoken, exp} = await jwt.verify(accessToken, process.env.JWTSECRET);
+        const bantime = exp - Math.ceil((Date.now()/1000));
+        //Ban accesstoken in redis for the remaining duration of the token (bantime=seconds)
+        setTokenBan(cryptotoken, accessToken, bantime);
+        next();
+    } catch (error) {
+        if(error.name!=='TokenExpiredError'){
+            sendresponse(res, createFeedback(401, "Corrupted access token!"));
+        } else {
+            console.error('invalidateAccessToken: ', error);
+        }
     }
 }
 
@@ -122,5 +131,6 @@ module.exports={
     authenticate,
     authorizeAdmin,
     authenticateRefreshToken,
-    invalidateTokens
+    invalidateRefreshToken,
+    invalidateAccessToken
 }

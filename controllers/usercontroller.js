@@ -115,7 +115,7 @@ const loginuser = async (req, res)=> {
 /**
  * This controller checks for req.body.refreshToken, looks up the token in the corresponding
  * database and checks if it is valid. If it is valid, it authenticates the user and sends
- * a new accesstoken.
+ * a new accesstoken while banning the old, if its still valid.
  */
 const refreshUser = async (req, res)=>{
     const {_id} = req.body.user;
@@ -131,7 +131,7 @@ function generateAccessToken(_id){
     return jwt.sign({_id, cryptotoken}, process.env.JWTSECRET, {expiresIn:"1h"});
 }
 
-//generates a refresh token that is valid for one week
+// generates a refresh token that is valid for one week
 async function generateRefreshToken(_id){
     const expireDays=7; //jwt token measure expire in days
     const expireTime= new Date(); //Mongodb handles expiry better if it is a date

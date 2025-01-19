@@ -6,7 +6,7 @@ const mongoConnect =async URI => {
     if(URI && typeof URI !== 'undefined') {
 
         let state = 'unresolved'
-        console.info(`Attempting to connect to mongo database @ URI: \n${URI}`)
+        console.info(`Attempting to connect to mongo database ${DBNAME} @ URI: \n${URI}`)
         mongoose.connect(URI, {
             DBNAME
         })
