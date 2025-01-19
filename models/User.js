@@ -1,25 +1,26 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+const validator = require('validator');
 const PASSWORDLENGTH=8;
 
-const todoschema=mongoose.Schema({
-    title: {
-        type: String,
-        required: true,
-        minlength: [5, 'your title needs to be at least 5 characters']
-    },
-    description: {
-        type: String,
-        required: true,
-        minlength: [10, 'Your task needs to be more descriptive! 10 characters please!']
-    }
-})
 const userschema=mongoose.Schema({
-    username: {
+    givenname: {
+        type: String,
+        required: true
+    },
+    surname: {
         type: String,
         required: true,
-        lowercase: true,
-        unique: true
+
+    },
+    email: {
+        type: String,
+        required: [true, "an email is required to register!"],
+        unique: true,
+        validate: {
+            validator: validator.isEmail,
+            message: props => `${props.value} is not a valid email!`,
+        }
     },
     role: {
         type: String,
@@ -31,9 +32,9 @@ const userschema=mongoose.Schema({
         type: String,
         required: true,
         minlength: [PASSWORDLENGTH, `Passwords must have at least this many letters: ${PASSWORDLENGTH}`]
-    },
-    todos:[todoschema]
-})
+    }
+},
+{timestamps: true})
 
 userschema.pre('save', hashPassword);
 
@@ -41,13 +42,13 @@ userschema.statics.login=login;
 userschema.methods.changeUserRole=changeUserRole;
 
 /**
- * @param {*} username of the user to log in
+ * @param {*} email of the user to log in
  * @param {*} password of the user to log in
  * @returns the user if credentials is successfully validated or null in any other case.
  */
-async function login(username, password){
+async function login(email, password){
     let loginresult = null;
-    const user = await this.findOne({username});
+    const user = await this.findOne({email});
     if(user){
         const auth = await bcrypt.compare(password, user.password);
         if(auth) loginresult=user;
