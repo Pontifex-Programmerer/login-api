@@ -38,10 +38,13 @@ async function enableRedis(REDISURI){
 async function setTokenBan(tokenID, token, expireIn){
     if(client){
         try {
-            const result = await client.setEx(tokenID, expireIn, token);
+            await client.setEx(tokenID, expireIn, token); // returns OK or throws an error
+            //add logging..
         } catch(err){
-            console.error(err);
+            console.error('setTokenBan:',err);
         }
+    } else {
+        throw new Error("TokenBan: RedisClient not alive!");
     }
 }
 

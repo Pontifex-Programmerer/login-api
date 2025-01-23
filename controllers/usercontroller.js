@@ -1,5 +1,6 @@
-//Created by: Geir Hilmersen
-//5 May 2024 Geir Hilmersen
+// Created by: Geir Hilmersen
+// 5 May 2024 Geir Hilmersen
+// 26 December 2024 Geir Hilmersen
 
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
@@ -13,35 +14,44 @@ const {
     resourceNotFound,
     internalServerError
 } = require('../handlers/httpFeedbackHandler');
-const { response } = require('express');
 
 const createuser = async (req,res)=> {
-    const {username,password} = req.body;
-    let feedback = createFeedback(404, `${username} could not be created.`);
-
-    if(typeof(username) !== 'undefined' && typeof(password) !== 'undefined'){
+    const {email, givenname, surname, password} = req.body;
+    let feedback = createFeedback(404, `${email} could not be created.`);
+    if(typeof(email) === 'string' && typeof(password) === 'string' && typeof(surname) && typeof(givenname) === 'string'){
         try {
-            const result = await User.create({username,password});
+            const result = await User.create({email, givenname, surname, password});
             if(result) {
                 const {_id} = result;
-                feedback = createFeedback(200, `${username} was created!`,true, {_id});
+                feedback = createFeedback(200, `${email} was created!`,true, {_id});
             }
         } catch(error) {
-            feedback = createFeedback(409, `${username} could not be created!`, false, error)
+            const code = error?.response?.code;
+            if(code && typeof(code) === 'number'){
+                switch(code) {
+                    case 11000:
+                        break;
+                    default:
+                        feedback = createFeedback(409, `${email} could not be created! MongoDB code ${code}`, false, error)
+                        break;
+                }
+            } else {
+                feedback = createFeedback(404, error.message, false, error);
+            }
         }
     }
     res.status(feedback.statuscode).json(feedback);
 }
 
 const upgradeuser = async (req, res)=>{
-    const {username, isDowngrade} = req.body;
+    const {email, isDowngrade} = req.body;
     let feedback = createFeedback(404, 'Faulty inputdata!');
     try{
-        let targetUser = await User.findOne({username});
+        let targetUser = await User.findOne({email});
         const updateduser = await targetUser.changeUserRole(isDowngrade);
 
         if(updateduser){
-            feedback=createFeedback(200, 'Success', true, {username:updateduser.username,role:updateduser.role});
+            feedback=createFeedback(200, 'Success', true, {email:updateduser.email,role:updateduser.role});
         } else {
             feedback=internalServerError();
         }
@@ -52,14 +62,13 @@ const upgradeuser = async (req, res)=>{
 }
 
 const deleteuser = async (req, res)=>{
-    const {username} = req.body;
-    let feedback = createFeedback(404, `User ${username} could not be deleted`);
-    if(typeof(username)!=='undefined'){
+    const {email} = req.body;
+    let feedback = createFeedback(404, `User ${email} could not be deleted`);
+    if(typeof(email)!=='undefined'){
         try {
-
-            const result = await User.findOneAndDelete({username});
+            const result = await User.findOneAndDelete({email});
             if(result){
-                feedback=createFeedback(200, `${username} was deleted!`, true, result);
+                feedback=createFeedback(200, `${email} was deleted!`, true, result);
             }
         }catch(error){
             console.log('error!');
@@ -68,20 +77,23 @@ const deleteuser = async (req, res)=>{
     res.status(feedback.statuscode).json(feedback);
 }
 
+// Tokens are deleted in the authorization middleware, and a user is passed on
+// based on the tokens that are deleted. If no user is provided, the tokens was 
+// non-existent.
 const logoutuser = async (req, res)=> {
     let feedback = createFeedback(404, 'user not found!');
     const {user} = req.body;
     if(user){
-        feedback = createFeedback(200, `${user.username} has been logged out!`, true);
+        feedback = createFeedback(200, `${user.email} has been logged out!`, true);
     }
     res.status(feedback.statuscode).json(feedback);
 }
 
 const loginuser = async (req, res)=> {
-    const {username, password} = req.body;
+    const {email, password} = req.body;
     let feedback=accessDenied();
     try {
-        const user = await User.login(username,password);
+        const user = await User.login(email,password);
         if(user){
             const {_id} = user;
             //expiration: one hour
@@ -89,7 +101,7 @@ const loginuser = async (req, res)=> {
             const refreshToken = await generateRefreshToken(_id);
     
             if(refreshToken){
-                feedback=createFeedback(200, `${username} was authenticated`, true, {accessToken, refreshToken});
+                feedback=createFeedback(200, `${email} was authenticated`, true, {accessToken, refreshToken});
             } else {
                 feedback=internalServerError();
             }
@@ -103,7 +115,7 @@ const loginuser = async (req, res)=> {
 /**
  * This controller checks for req.body.refreshToken, looks up the token in the corresponding
  * database and checks if it is valid. If it is valid, it authenticates the user and sends
- * a new accesstoken.
+ * a new accesstoken while banning the old, if its still valid.
  */
 const refreshUser = async (req, res)=>{
     const {_id} = req.body.user;
@@ -113,54 +125,13 @@ const refreshUser = async (req, res)=>{
     res.status(feedback.statuscode).json(feedback);
 }
 
-/**
- * The function will look for title and description in the body of the request object.
- * If either of those variables is not present. Then a json object relaying the failure
- * will be rendered.
- */
-const createtodo = async (req,res)=>{
-    const {title, description, user}=req.body;
-    let feedback= createFeedback(404, 'Faulty inputdata');
-
-    if(typeof(title)!=='undefined'&&typeof(description)!=='undefined'&& typeof(user)!=='undefined'){
-        const todo ={title,description};
-        user.todos.push(todo);
-        try {
-            const updatedUser = await user.save();
-            feedback=createFeedback(200, 'Todo was inserted to the database',true, updatedUser.todos);
-        } catch (err) {
-            console.log(err)
-            feedback = createFeedback(500, 'Internal server error');
-        }
-    }
-    sendresponse(res,feedback);
-}
-
-const removetodo = async (req, res)=>{
-    let feedback=resourceNotFound();
-    const {title, user} = req.body;
-    if(typeof title === 'string' && typeof user === 'object') {
-        user.todos = user.todos.filter(item => {
-            return item.title !== title;
-    });
-
-        try {
-            const {todos} = await user.save();
-            feedback = createFeedback(200, 'Reqested title is gone!', true, todos);
-        } catch(error){
-
-        }
-    }
-
-    sendresponse(res, feedback);
-}
 
 function generateAccessToken(_id){
     const cryptotoken = crypto.randomBytes(32).toString('hex');
     return jwt.sign({_id, cryptotoken}, process.env.JWTSECRET, {expiresIn:"1h"});
 }
 
-//generates a refresh token that is valid for one week
+// generates a refresh token that is valid for one week
 async function generateRefreshToken(_id){
     const expireDays=7; //jwt token measure expire in days
     const expireTime= new Date(); //Mongodb handles expiry better if it is a date
@@ -179,8 +150,6 @@ function sendresponse(response,feedback){
 }
 
 module.exports={
-    createtodo,
-    removetodo,
     createuser,
     loginuser,
     logoutuser,
