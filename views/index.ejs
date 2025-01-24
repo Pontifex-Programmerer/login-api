@@ -1,4 +1,4 @@
-<%-include("./partials/header") %>
+<%- include("./partials/header") %>
 
 <section class="intro">
     <h1>Bleiker VGS login-api endpoint documentation</h1>
@@ -12,6 +12,7 @@
 </section>
 
 <% if(Array.isArray(files) && files.length > 0) { %>
+
     <section class="doc-section">
 
         <% files.forEach(file =>  { %>
