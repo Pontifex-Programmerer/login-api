@@ -3,7 +3,10 @@
 
 const jwt=require('jsonwebtoken');
 const User = require('../models/User');
+const fs = require('fs');
 const RefreshToken = require('../models/RefreshToken');
+
+const publicKey = fs.readFileSync('./keys/jwt-public.pem', 'utf-8');
 
 const {
     createFeedback,
@@ -21,7 +24,7 @@ const authenticate = async (req,res,next) => {
     let feedback = accessDenied();
     if(typeof(accesstoken)!=='undefined'&&typeof(accesstoken)==='string'){
         try {
-            const {_id, cryptotoken} = jwt.verify(accesstoken, process.env.JWTSECRET);
+            const {_id, cryptotoken} = jwt.verify(accesstoken, publicKey,{algorithms:['RS256']});
             const isBanned= await isTokenBanned(cryptotoken);
             if(!isBanned){
                 const user = await User.findOne({_id});
@@ -44,7 +47,7 @@ const authenticateRefreshToken = (req,res,next) => {
     let feedback=accessDenied();
     if(typeof(refreshToken) !== 'undefined' && typeof(refreshToken)==='string'){
         feedback = createFeedback(409, 'Token not valid');
-        jwt.verify(refreshToken, process.env.JWTSECRET, async(err, decodedtoken)=>{
+        jwt.verify(refreshToken, publicKey, {algorithms:['RS256']}, async(err, decodedtoken)=>{
             if(!err){
                 const {cryptotoken,_id}=decodedtoken;
                 try {
@@ -83,12 +86,14 @@ const authorizeAdmin = (req,res,next)=>{
 //will be banned. A refreshtoken will be removed from the DB even if no
 //valid accesstoken is found in case of tampering. Zero thrust security!
 const invalidateRefreshToken = async (req, res, next) => {
+    console.info('invalidating method');
     let feedback = resourceNotFound();
     try {
         const refreshToken = req.headers.authorization?.split(' ')[1];
-
+        const decoded = jwt.decode(refreshToken, { complete: true });
+        console.log(decoded)
         // Remove the refresh token
-        let {_id,cryptotoken} = await jwt.verify(refreshToken, process.env.JWTSECRET);
+        const {_id,cryptotoken} = jwt.verify(refreshToken, publicKey,{algorithms:['RS256']});
         
         req.body.user= await User.findOne({_id});
         //Remove refreshtoken from db to prevent accesstokens from refreshing
@@ -107,18 +112,22 @@ const invalidateRefreshToken = async (req, res, next) => {
 
 const invalidateAccessToken = async (req, res, next) => {
     const {accessToken} = req.body;
-    let isNext=true;
-    try {
-        let {cryptotoken, exp} = await jwt.verify(accessToken, process.env.JWTSECRET);
+    try { 
+        let {cryptotoken, exp} =  jwt.verify(accessToken, publicKey, {algorithms:['RS256']});
+        //let decoded =  jwt.verify(accessToken, publicKey, {algorithms:['RS256']});
         const bantime = exp - Math.ceil((Date.now()/1000));
         //Ban accesstoken in redis for the remaining duration of the token (bantime=seconds)
         setTokenBan(cryptotoken, accessToken, bantime);
+        console.log('token was banned, going next!')
         next();
     } catch (error) {
         if(error.name!=='TokenExpiredError'){
+            console.log(error)
             sendresponse(res, createFeedback(401, "Corrupted access token!"));
         } else {
+            // its ok to proceed if the token is valid, but not corrupted. 
             console.error('invalidateAccessToken: ', error);
+            next();
         }
     }
 }

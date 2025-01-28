@@ -25,9 +25,9 @@ router.post('/login-user', loginuser);
 router.post('/refresh-user', invalidateAccessToken, authenticateRefreshToken, refreshUser);
 router.post('/logout', invalidateAccessToken, invalidateRefreshToken, logoutuser)
 
-
 //Protected routes
 router.delete('/delete-user', authenticate, authorizeAdmin, deleteuser);
 router.patch('/create-admin', authenticate, authorizeAdmin, upgradeuser);
+
 
 module.exports=router;
