@@ -4,6 +4,8 @@ const express = require('express');
 const app = express();
 const documentation_routes=require('./routes/documentation_routes');
 const user_api=require('./routes/api_user_routes');
+const testroutes = require('./routes/api_test_routes');
+
 const {startScheduler}=require('./services/scheduler');
 
 const {enableRedis} = require('./handlers/redishandler')
@@ -19,6 +21,7 @@ app.use(express.urlencoded({extended:true}));
 app.use(express.json());
 setupDocumentationViews();
 app.use(user_api);
+app.use(testroutes);
 
 app.listen(PORT, ()=>{
     console.log(`Revving engine...`);
