@@ -23,7 +23,7 @@ const {
 router.post('/create-user', createuser);
 router.post('/login-user', loginuser);
 router.post('/refresh-user', invalidateAccessToken, authenticateRefreshToken, refreshUser);
-router.post('/logout', invalidateAccessToken, invalidateRefreshToken, logoutuser)
+router.post('/logout', invalidateAccessToken, invalidateRefreshToken, logoutuser);
 
 //Protected routes
 router.delete('/delete-user', authenticate, authorizeAdmin, deleteuser);
