@@ -6,6 +6,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const RefreshToken = require('../models/RefreshToken');
 const crypto = require('crypto');
+const fs = require('fs');
 
 const {
     accessDenied,
@@ -14,6 +15,8 @@ const {
     resourceNotFound,
     internalServerError
 } = require('../handlers/httpFeedbackHandler');
+
+const privateKey = fs.readFileSync('./keys/jwt-private.pem', 'utf-8');
 
 const createuser = async (req,res)=> {
     const {email, givenname, surname, password} = req.body;
@@ -99,7 +102,7 @@ const loginuser = async (req, res)=> {
             //expiration: one hour
             const accessToken = generateAccessToken(_id)
             const refreshToken = await generateRefreshToken(_id);
-    
+
             if(refreshToken){
                 feedback=createFeedback(200, `${email} was authenticated`, true, {accessToken, refreshToken});
             } else {
@@ -128,7 +131,7 @@ const refreshUser = async (req, res)=>{
 
 function generateAccessToken(_id){
     const cryptotoken = crypto.randomBytes(32).toString('hex');
-    return jwt.sign({_id, cryptotoken}, process.env.JWTSECRET, {expiresIn:"1h"});
+    return jwt.sign({_id, cryptotoken}, privateKey, {algorithm: 'RS256', expiresIn:"1h"});
 }
 
 // generates a refresh token that is valid for one week
@@ -139,7 +142,7 @@ async function generateRefreshToken(_id){
 
     const cryptotoken = crypto.randomBytes(32).toString('hex');
 
-    const refreshToken = jwt.sign({_id, cryptotoken}, process.env.JWTSECRET, {expiresIn:`${expireDays}d`});
+    const refreshToken = jwt.sign({_id, cryptotoken}, privateKey, {algorithm: 'RS256', expiresIn:`${expireDays}d`});
 
     const result = await RefreshToken.create({jwt:refreshToken, cryptotoken, expireTime});
     return refreshToken;
