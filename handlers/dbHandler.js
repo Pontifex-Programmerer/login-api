@@ -6,7 +6,7 @@ const mongoConnect =async URI => {
     if(URI && typeof URI !== 'undefined') {
 
         let state = 'unresolved'
-        console.info(`Attempting to connect to mongo database ${DBNAME} @ URI: \n${URI}`)
+        console.info(`Attempting to connect to mongo database: \n    - ${DBNAME} @ URI: ${URI}\n`)
         mongoose.connect(URI, {
             DBNAME
         })
@@ -19,10 +19,10 @@ const mongoConnect =async URI => {
             state= 'unresolved!'
         })
         .finally(()=>{
-            console.info(`Connection to database ${state}`);
+            console.info(`SUCCESS: Connection to database ${state}`);
         })
     } else {
-        console.error('DBHandler.mongoConnect() - No URI provided! Connectionattempt aborted!')
+        console.error('FAILURE: DBHandler.mongoConnect() - No URI provided! Connectionattempt aborted!')
     }
 }
 
